@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html>
+
+
+<!-- Header -->
+<head>
+<title>GenericCA</title>
+<meta charset = "UTF-8">
+
+<style>
+      body {background-color:rgb(248,248,248);}
+</style>
+<script type="text/javascript" async
+        src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
+  </script>
+
+  <link rel="stylesheet" href="css/gutenweb.css">
+</head>
+
+<body>
+<address>
+      Fabio Cappello<br />
+</address>
+
+<h1>GenericCA</h1>
+
+<p>
+GenericCA is a 2D, three-state cellular automata simulator which allows the user
+to specify the rules under which cells survive and are born, as well as ageing rules.
+It also gives the possibility to add uncertainty in the rules, so that state
+transitions happen with certain probabilities at each iteration. <br />
+The aim is giving the user the possibility to explore emergence and the consequence of changing rules.
+</p>
+<p>
+First, a formal definition of a Cellular Automaton is given.
+After that, elementary cellular automata are described in order to clarify the
+definition given and as an example of how complexity can emerge in even very s
+imple systems; then, the class of cellular automata representable in GenericCA
+is defined.
+The topic of emergence and self-organization within cellular automata is
+then explored and many applications of them are described, with videos showing
+the simulation running in GenericCA.
+</p>
+
+
+<h2>Usage</h2>
+<ul>
+      <li>Press SPACE to toggle edit mode</li>
+      <li>Click to change the state of a cell while in edit mode</li>
+      <li>press T (in edit mode) to change the type of cell inserted</li>
+      <li>Press C to clear the board</li>
+      <li>Press R to randomly initialise the board</li>
+      <li>Press +/- to speed up/down execution</li>
+      <li>Press ENTER to go to configuration mode</li>
+</ul>
+<p><strong>States</strong>: Red represents state B, Green represents state C.
+<br />
+<strong>Configuration mode:</strong> Each field in the configuration screen represents the transition (born, survive) of a cell in a certain state depending on the number of 8-neighbours it has. The specified numbers (0 to 8) represent the number of neighbours that make that transition happen. Transitions from and to state B and C depend, respectively, on number of neighbours in state B and C; transition from state B to C depends on the number of neighbours in state C, transition from state C to B depends on the number of neighbours in state B. Ages parameter makes cells that should die go in an aged state instead, and in the following iterations evolve through the number of ages specified by that parameter. When the age reaches the maximum number of ages, the cell dies. When a cell is in an aged state it cannot change state until it dies.
+</p>
+
+
+In case of problems with running the applet below inside your browser you can <a href=genericCA_applet.jar>download the jar</a> and run it independently.
+
+<p>
+<div style="position:relative; transform: translate(-180px, 0)  ">
+<applet code="genericCA_applet.class" archive="genericCA_applet.jar"
+width="896" height="504" style="display:block; margin: 0px auto; max-width:200%" ></applet>
+</div>
+</p>
+    <p>
+        Source code: <a href="genericCA_applet.pde">genericCA_applet</a> <a href="Board.pde">Board</a> <a href="Cell.pde">Cell</a> <a href="GenericCA.pde">GenericCA</a> <a href="Util.pde">Util</a>
+    </p>
+
+
+<h2>Definition of a Cellular automaton</h2>
+<p>Formally, a cellular automaton can be represented with a quadruple (C, \(\Sigma\), N, \(\Phi\)), where C is the lattice, \(\Sigma\) is a finite set of discrete cell states, N is a neighbourhood function, \(\Phi\) is the local transition function.
+</p>
+<p>
+The lattice C is a set of discrete cells, each characterized by its position and state, that can be one the values contained in \(\Sigma\).
+<br />
+N is a function
+$$N: C\times C\rightarrow \{True, False\}$$
+that defines the neighbours of a cell (usually, it is assumed that N is a simmetric function, i.e \(N(c_1, c_2) = N(c_2, c_1) \forall c_1, c_2\in C\)); the neighborhood of a cell is therefore the set
+$$N_{c_i} = \{c\in C | N(c_i,c) = True\} $$
+\(\Phi\) is a function of the state of the neighbourhood of a cell:
+$$\Phi: S^{|N|}\rightarrow S$$
+Based on it, it is determined what is the state of the cell at the following discrete time step.
+<br />
+Each of the cells, taken singularly, can therefore be seen as a finite state machine, whose transition rules depend on the current state and on the neighbour's states. </p>
+<p>An extension on the above is a stochastic cellular automaton. In a stochastic cellular automaton each of the possible transitions happen with a certain probability. Each cell can therefore be seen as a Markov chain. </p>
+<p>
+The above definition allows to define an infinite number of different cellular automata, varying the sets C, \(\Sigma\), the neighbourhood and transition functions N and \(\Phi\) and the initial conditions.
+</p>
+<p>
+To better understand what a cellular automaton is and why it is interesting in the study of artificial life, 1-D elementary cellular automata are considered first, and they are generalised up to the class of cellular automata that can be represented within the applet.
+</p>
+
+<h3> Elementary cellular automaton </h3>
+<p>
+The simplest type of cellular automaton is one dimensional, with two possible states for each cell, and defining the neighbourhood of each cell as the two cells adjacent to it. More formally, the neighbourhood function associates to each cell two neighbours and is symmetric, and the states are only \(\Sigma = \{Alive, Dead\}\).
+<br />
+Changing the state transition function \(\Phi\) it is possible to obtain different cellular automaton.
+</p>
+<p>
+In this simple case, it is possible to enumerate all the possible choices for the function, which are 256. In fact, there are \(2^3=8\) possible states for the neighbourhood of a cell (domain of \( \Phi\)), which are:
+<ol>
+      <li>left neighbour dead, cell dead, right neighbour dead (000) </li>
+      <li>left neighbour dead, cell dead, right neighbour alive (001) </li>
+      <li>left neighbour dead, cell alive, right neighbour dead (010) </li>
+      <li>left neighbour dead, cell alive, right neighbour alive (011) </li>
+      <li>left neighbour alive, cell dead, right neighbour dead (100) </li>
+      <li>left neighbour alive, cell dead, right neighbour alive (101) </li>
+      <li>left neighbour alive, cell alive, right neighbour dead (110) </li>
+      <li>left neighbour alive, cell alive, right neighbour alive (111) </li>
+</ol>
+<p>For each of these possible neighborhood states of a cell it is possible to choose if the cell evolves to the state 0 or to the state 1; therefore, there are \(2^8\) possible choices for \(\Phi\), which originate this number of cellular automata. Each of the possible rules is usually represented with a number from 0 to 255; the transition function corresponding to rule \(i\) is obtained expressing \(i\) in binary base and intepreting its k-th digit as the transition (mathematically, the image) referring to the state of the neighbourhood which is represented by \(k\) in binary form (mathematically, domain; where a neighborhood in binary form is expressed as in the above list). The following image exemplifies this for some of the rules:</p>
+<figure><img src="img/ElementaryCARules.gif" title="Elementary CA Rules, from mathworld.wolfram.com"></img></figure>
+<p>
+Despite the simplicity of this type of cellular automata and of its rules, great complexity can, surprisingly, arise from them (to see the patterns that arise from each of the rules, see <a href="http://mathworld.wolfram.com/ElementaryCellularAutomaton.html">mathworld.wolfram.com page</a> about elementary cellular automata; some examples are discussed below).
+</p>
+<h3>GenericCA cellular automata</h3>
+<p>
+The proposed applet enables to represent a particular class of stochastic cellular automata.
+<br />
+The lattice C is a 2D grid, in which cells have 8 neighbours each. The set of states \(S=\{0, B, C\}\) allows to represent in it three states. The representable transition functions are those in which the next state of a cell depends on the number of neighbours of each state it has, i.e. on the number of neighbours in state 0, B, C. In order not to make the choice of parameters too complex (which would have brought to lack on intuition on how to make properties emerge from local rules) some simplifications have been made. They are explained below.
+</p>
+<p>
+The possible transitions are:
+<ul>
+      <li>No birth: \(0\rightarrow 0\)</li>
+      <li>B is born: \(0\rightarrow B\)</li>
+      <li>C is born: \(0\rightarrow C\)</li>
+      <li>B dies: \(B\rightarrow 0\)</li>
+      <li>B survives: \(B\rightarrow B\)</li>
+      <li>B transforms to C: \(B\rightarrow C\)</li>
+      <li>C dies: \(C\rightarrow 0\)</li>
+      <li>C transforms to B: \(C\rightarrow B\)</li>
+      <li>C survives \(C\rightarrow C\)</li>
+</ul>
+Note that it is not necessary to define, for each state of a cell, the rules under which each of the three transitions takes place: if two are specified, the third one follows from the others, as the default one. For simplicity, the transformations \(0\rightarrow 0\), \(B \rightarrow 0\), \(C \rightarrow 0\) are, respectively, assumed as default for each initial state.
+<br />
+Therefore, for the remaining 6 transformations the number of B and C neighbours (number of neighbours in state 0 follows as \(|0| =9-(|B|+|C)\)) under which the transition takes place has to be specified.
+As a simplification, it has been assumed that:
+<ul>
+      <li>transitions \( 0 \rightarrow B \) and \(0 \rightarrow C \) depend only on the number of neighbours in state, respectively, B and C, and analagously the transitions \(B\rightarrow B\) and \(C \rightarrow C\);</li>
+      <li>transition \(C \rightarrow B\) depends only on the number of neighbours in state B, whereas the transition \(B \rightarrow C \) depends on the number of neighbours in state C. </li>
+</ul>
+In case of ambiguity, in which two transitions could possibly take place, it has been decided that:
+<ul>
+      <li>transition \(0\rightarrow B\) has precedence over transition \(0 \rightarrow C\)</li>
+      <li>transitions \(B \rightarrow C\) and \(C \rightarrow B\) have precedence over transitions \(B \rightarrow B \) and \(C\rightarrow C\);</li>
+      <li>transition \(C \rightarrow B \) has precedence over transition \(B \rightarrow C \).</li>
+</ul>
+Note that the precedence rules advantage state B over state C, giving therefore an interpretation of "predator" to B and "prey" to state C in a model in which the states represent species.
+</p>
+<p>
+For each of these transitions is possible to specify a probability; this is the aspect that makes the cellular automaton stochastic.
+</p>
+<p>
+In addition, an <em>ages</em> parameter can be specified. When \(ages \gt 1\), whenever a cell should die it ages before that, i.e. it goes to a different, "aged" state. All cells in the regular states (0, B, C) above defined have an age equal to 0; when they go to the aged state their age is incremented, thus producing a new state. Cells in aged states follow the following simple transition rule:
+<ul>
+      <li>If \(age+1\lt ages\) then increment age;  </li>
+      <li>else reset the cell (age = 0; state = 0) </li>
+</ul>
+Adding the aging rule, despite its semplicity, completely changes the cellular automata that result from a certain set of rules, as will be shown in the examples.
+</p>
+
+<h2>Applications of cellular automata</h2>
+Ilachininski (2001) identifies 4 principal fields of application of Cellular automata, that motivate their study:
+<ol>
+      <li>As powerful computation engines</li>
+      <li>As discrete dynamical system simulators</li>
+      <li>As conceptual vehicles for studying pattern formation and complexity</li>
+      <li>As original models of fundamental physics</li>
+</ol>
+<p>Second and third application fields are most relevant to Artificial Life; in particular, application number 3 has to do with emergence, which is a particularly interesting topic in the study of living systems.
+C. Langton (1986) in <em>Studying Artificial Life with Cellular Automata</em> seeks in cellular automata a means to explain how a living organism, despite being made of inanimate parts (molecules) that interact with each other according to physical laws, appear to be much more than the sum of them; for this reason, he compares study cellular automata to biochemistry, calling it <em>artificial biochemistry</em>, in which cells play the role of <em>artificial molecules</em>.
+<br />
+The hypothesis of the possibility of replicating life in cellular automata arrives up to the point to consider that intelligence could emerge in them: since the brain is a parallel aggregate system, it can be hypothesised that its dynamics involve the interaction of virtual automata in some form.
+</p>
+<p>
+Chopard and Droz, in <em>Cellular Automata Modeling of Physical Systems</em>, explore in detail how physical systems can be modelled using cellular automata, as an alternative to use of more complex mathematical tools, like nonlinear partial differential equations. Many possible models of physical systems are explored, such as annealing, sand pile falling, ant movement, road traffic, solid body motion, gas particles movement, diffusion. This gives a very good idea of how many diverse models can be designed by use of cellular automata.
+</p>
+<p>
+Addition of a probabilistic element furtherly improves the modelling power of cellular automata, adding the possibility to consider uncertainty inside of them. This is also appealing from an Artificial Life point of view, because it allows to add unpredictability to the automaton.
+</p>
+<h2> Emergence and Cellular automata</h2>
+
+<h3>Self Organization</h3>
+<p>Many different physical and biological systems exhibit self-organization. Self-organization can be defined as formation of patterns occuring through interaction internal to the system, without intervention of external directing influences.
+</p>
+<p>
+Camazine et al., in Self-Organization in Biological Systems (2001) define it as <em>a process in which pattern at the global level of a system emerges solely from numerous interactions among the lower-level components of the system. Moreover, the rules specifying interactions among the system's components are executed using only local information, without reference to the global pattern</em>.
+<br />
+This is strictly connected to emergent behaviour, in which an high level organization emerges from simple rules. Fundamental prerequisite in this is that there must not be any externally imposed instructions which globally guide  the behaviour of the components. </p>
+<p>Self organization and emergent behaviour are of particular interest in study of artificial life. Many living systems exhibit self-organization and emergence properties at different levels; examples are ant colonies, whose global path-seeking emerges from simple rules based on local concentrations of pheromone, and flocking birds, that adjust their velocity depending on their local neighborhood and produce a global structure (as pointed out by Craig Reynolds' Boid model).
+</p>
+<p>
+Maruyama (1963) shows how great complexity can arise from very simple rules, and how a slight variation on these rules can produce big changes in the overall result. He applies this concept to give an explanation of how living beings have high complexity despite the relatively small amount of information stored in genes: genes carry just a set of rules to generate the complexity, which arises from those. He uses a particular 2D cellular automaton to exemplify that, showing how changes in rules and initial conditions originate big variations in the final outcome.
+</p>
+<p>
+Self-organization can also emerge in non-living systems, based on laws of physics or chemistry. Examples of this are ripples in the sand, waves in the sea, crystallization.
+<br />
+Many systems can, in general, be seen from a self-organization point of view. An interesting example is car traffic: a global pattern emerges from local interaction of the drivers, as described by Boris Kerner (2004) in his Three-phase traffic theory, in which he identifies three phases of traffic (Free flow, Synchronized flow, Wide moving jam); global phases emerge from the individuals, without central organization. </p>
+<p>
+Notably, very simple interaction among the basic components of a system can give raise to surprisingly complex global patterns; therefore, it eliminates the drawbacks associated with the approaches to study of artificial life based on global coordination. Real living systems are usually too complex for their behaviour to be specificated with an explicit, exhaustive description; and even when some of those rules are found, they will probably lack of flexibility. Therefore, finding a small set of rules from which the complex, global behaviour emerges from local interaction is particularly appealing in the attempt to produce life-like behaviours.
+</p>
+<h3>Self-organization and emergence in cellular automata</h3>
+<p>
+John Conway's game of life is probably the most well-known example of how complexity can emerge from simple rules. It is a 2-D cellular automaton based on a very simple set of deterministic rules in a rectangular grid: cells can have two states, alive or dead; when a cell is dead, it comes to life when it has 3 alive neighbours; when a cell is alive, it survives if it has 2 or 3 neighbours; otherwise, it dies.
+<br />
+Despite its simplicity, this set of rules generates a system in which there is complexity of behavior and ordered structures, up to the point that a universal Turing machine can be built inside of it (<a href="http://www.igblan.free-online.co.uk/igblan/ca/">Life universal computer</a>).
+</p>
+<p>
+A cellular automaton-based model of traffic has also been developed (Kerner, 2002) to show how the global behaviour in traffic is actually emergent from local components of the system; this provides another example of how emergency can be modelled via cellular automata.
+</p>
+Stephen Wolfram in <em>A New Kind of Science</em> (2002) argues that the results of computation could bring to an understanding of the physical world; cellular automata are used as examples of very simple computational models in which great complexity is achieved.
+Konrad Zuse (1969) in his book Calculating Space even proposed that the law of the universe could be discrete and computable, and in particular he focused on cellular automata as models that could possibly describe how computation would take place in such an universe.
+
+<h4>Classes of cellular automata</h4>
+Stephen Wolfram studied elementary automata in detail as <em>simple programs</em>, which represent basic models of computation.
+He made a classification of Cellular Automata which helps understand how life-like behaviour can emerge from them.
+He divided cellular automata in four classes:
+<ol>
+      <li>Uniform. After a certain number of iterations, all the cells are constant, for nearly all the possible initial patterns. Elementary cellular automaton rule 1 is an example of a constant pattern.</li>
+      <li>Periodic. After a certain number of iterations, the initial state of the cells evolves into structures that oscillate periodically. Rule 190 is an example of an oscillating pattern:</li>
+      <figure><img src="img/Rule190Big.gif" title="Rule 190(mathworld.wolfram.com)" align="middle"></img> </figure> <br />
+      <li>Chaotic. There is no apparent pattern. It is worth noting how even extremely simple rules can generate chaotic and seemingly random patterns. An example is elementary cellular automaton rule 30, chaotic to the point that it has been used as a random number generator:</li>
+      <figure><img src="img/Rule30Big.jpg" title="Rule 30(mathworld.wolfram.com)" align="middle"></img> </figure> <br />
+      <li>Complex. There are oscillating and uniform patterns, as well as a certain amount of randomness. The way in which structure appears, for example, can be apparently random. This produces a complex evolution of the patterns. Elementary cellular automaton rule 110 is an example of such a cellular automaton:  </li>
+      <figure><img src="img/Rule110Big.jpg" title="Rule 110(mathworld.wolfram.com)" align="middle"></img> </figure>
+      Among all the elementary cellular automata, rule 110 is the only one that has been proven to be Turing complete (by Matthew Cook). This is a particularly important result, since it proves that from a very simple rule follow universal computation capabilities.
+</ol>
+<h5>The edge of chaos</h5>
+<p>From an artificial life point of view class 4 cellular automata are the most interesting. In fact, it can be argued that a characteristic of living system is complexity. It has been suggested that life is placed somewhere between order and chaos; Christopher Langton called this border "edge of chaos", in which all the complex, interesting behaviour takes place.
+<br />
+To help predict what the behaviour of a cellular automata will be depending on its rule set, he defined a parameter \(\lambda\) given by the fraction of rules in which the new state of a cell is living. When \(\lambda\) is 0, no cell is born, so the configuration is extremely ordered; when it approaches 1, almost all the rules cause life, so the behaviour is chaotic. He observed that, increasing the value of \(\lambda\) from 0 to 1, initially the CA is highly ordered, then there is a transition from order to chaos, and finally a chaotic behaviour. It is near the transition that the most interesting CA are usually found: when there is order, the effect of perturbations die out; when there is chaos, perturbations propagate very rapidly. When there is complexity, perturbations evolve, with information of the perturbation propagating inside the system. As Andrew Ilachinski (2001) points out, at the edge of chaos information can both propagate over long distances without appreciable decay and store this information, without neither locking into an ordered structure nor dissolving into randomness, and this is what gives raise to complexity.
+</p>
+
+<h3>Models with cellular automata</h3>
+<h4>Game of Life</h4>
+<p>
+As mentioned above, John Conway's Game of Life is one of the most well-known and well-studied cellular automata. It belongs to class 4 cellular automata in Wolfram's classification; it exhibits complex behaviour, while being described by very simple rules. There are many still lives (stable patterns), oscillators, chaotic patterns, gliders. The number of different possible patterns is surprisingly high; <a href="http://www.conwaylife.com/wiki/Main_Page">LifeWiki</a> contains a collection of many of the studied ones.
+To have an idea of the variety of different patterns possible, it can be noted that the different patterns among only 24-cell strict (i.e. connected) still life ones are 4051711. Very complex patterns can emerge from it; just a few of the many possible examples of this are <a href="https://www.youtube.com/watch?v=GrIO5RJ76D0">glider guns</a>, <a href="https://www.youtube.com/watch?v=XBCATTdXwOA">4-8-12 diamond</a> and <a href="https://www.youtube.com/watch?v=-dUJDBnGFAI">corderships</a>.
+<br />
+For these reasons, Game of Life has often been taken as an example of how an apparent design could emerge without the presence of a designer, just by applying a set of simple, deterministic rules.
+<br />
+Game of Life can be reproduced, in its original version, within the applet as a particular case, by setting the rules: Born B:3, Survive B:23, Initial proportion C:0, ages:1, random birth probabilities to 0 and leaving born, survive, death probabilities to the default values of 1.
+</p>
+<p>Bagnoli et al. (1991) analysed systematically the evolution of patterns in a randomly initialised Game of Life. It is intersting to observe the following plot, which represents the asymptotic density of alive cells versus the inital density:
+<figure><img src="img/bagnoli.png"></img></figure>
+As the plot above shows, the anymptotic density is not a simple function of the initial density of cells, when they are initialised randomly. In the paper they also show that the patterns that most commonly originate from a randomly-initialised game of life are periodic or still life patterns.
+</p>
+<p>
+More variability over Game of Life could be obtained considering a noisy version of it, varying probabilities for state transitions. The idea of a stochastic Game of Life is appealing because many biological systems exhibit some form of indeterminism.
+</p>
+<p>
+Monetti et al. (1997) studied systematically how variation in state-transition probabilities in a simple 1-D cellular automaton bring changes to the behaviour of the system, making the initial state end into extinction, overcrowding, chaotic life or frozen life.
+<br />
+In their model, each chell has four neighbours, and stays alive when it has four live neighbours. A cell remains alive when it has two live neighbours with probability \(p_r\), when it has one or three live neighbours with probability \(p_s\); the transition areas between these extreme conditions are the most interesting, as in those a complex behaviour might emerge:
+</p>
+<figure><img src="img/monetti_stochastic.png" ></img></figure>
+<p>
+Analysing in detail all the possible combinations of probabilities and their consequences in a complete, stochastic game of life is much more complex, since there are many more parameters. However, experimentation within the applet has suggested that a born/survive/death probability of 0.9999 and a random birth probability of 0.0001 originate a cellular automaton producing more varied patterns from an initially random state than deterministic game of life, and also prevent the cellular automaton to evolve to a still-life asymptotic status.
+</p>
+<figure>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/4dNwIjJCRz0" frameborder="0" allowfullscreen></iframe>
+</figure>
+
+
+
+<h4> Predator-prey game of life model </h4>
+<p>
+Another variation is a two-species game of life, which can be represented with a 3-state cellular automaton. A species (e.g. state B) could be interpreted as "predator", while the other one (state C) could be interepreted as "prey". This brings to also define a transition rule C to B, that could happen with a certain probability (e.g. 0.2) for a number of neighbours in state B greater than 1. This transition could be interpreted as predation. <br />
+To model the fact that prey species does not need to attack other species to survive, a probability of random birth of 0.0001 could be given to it; on the other hand, a probability of survival of 0.9999 could be given to predator species (all other probabilities are left to deterministic values).
+</p>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/c5rfPGG4Jfk" frameborder="0" allowfullscreen></iframe>
+<p>
+Running the simulation, with initial proportion of predators of 0.08, preys of 0.16, in an randomly initialised board, originated the following time evolution:
+</p>
+<figure><img src="img/predator_prey.png"></img></figure>
+<p>
+Interestingly, it can be noticed how the temporal evolution of the simulation is qualitatively similar to the predator-prey dynamics as described by Lotka-Volterra equations, in which, after an initial transitory, the number of individuals of each species start oscillating around two different values. This confirms how the proposed model is a realistic representation of predation dynamics.
+</p>
+
+<h4>HighLife</h4>
+<p>
+A famous variation on Game of Life is HighLife. It has the same rule set as Game of Life with the addition of the rules that cells are born when they have 6 neighbours. This brings to a cellular automaton very similar to Game of Life, but in which there is a very simple <a href="http://www.conwaylife.com/wiki/Replicator">replicator pattern</a>, which leads to additional complexity with respect to normal Life rules.
+</p>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/GpRYGHXO2XE" frameborder="0" allowfullscreen></iframe>
+
+<h4>Disease spread</h4>
+<p>
+Another interesting model that can be simulated using the applet is the spread of a disease.<br />
+In this case, states will be given by \(\Sigma = \{dead, infected, healthy\}\). <br />
+Dead cells become alive when they have (in this example; the dynamics of the population modelled can be varied changing these rules) 2, 3, or 4 alive neighbours, with probability \(p_{b,i}\) from infected state, and \(p_{b,h}\) from healthy state. Transition from alive to dead cells happens, irrespective of the number of neighbours, with a probability \(p_{d,h}\) (probability of death of healthy cells) from healthy cells, \(p_{d,i}\) (probability of death of infected cells) from infected cells. A healthy cell can become infected when it has at least an infected neighbour, with probability \(p_{hi}\) (probability of infection); an infected cell can go back to healthy state with probability \(p_{ih}\) (probability of healing), irrespective of the number of healthy neighbours.  <br>
+Changing the values of the probabilities gives raise to different possible models of disease spread. For example, values of \(p_{b,i} = 0.0001\), \(p_{b,h} = 0.04\), \(p_{d,h}=0.02\), \(p_{d,i}=0.05\), \(p_{hi}=0.1\), \(p_{ih}=0\) models an incurable, rather contageous, moderately deadly disease. Time evolution of proportion of cells in each state is shown in the plot below:
+</p>
+<figure><img src="img/disease_1.png"></img></figure>
+<p>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/pEje7tATBmg" frameborder="0" allowfullscreen></iframe>
+For comparison purposes, the following plot has been generated from the same model, but without any infected individual as initial conditions:
+</p>
+<figure><img src="img/no_disease_growth.png" ></img></figure>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/xImWDYqHOrc" frameborder="0" allowfullscreen></iframe>
+<p>
+The first of the two plots shows that number of cells in infected state, after a transitory state, remains almost steady, oscillating around a value of about 2% of the total cells; healthy population oscillates as well around about 11% of total cells. However, oscillations of healthy individuals have high amplitude; this can be interpreted as a high impact of the disease on the population.
+</p>
+<p>
+Changing the parameters of the model, different disease models can be created. For example, adding a probability of healing \(p_{ih}=0.01\):
+</p>
+<figure><img src="img/disease_2.png" ></img></figure>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/dCiBTm9CTSk" frameborder="0" allowfullscreen></iframe>
+<p>brings, as shown above, an increase in the overall population, in comparison with the preceding model. As can be imagined, furtherly increasing healing rate would make the population grow more, while also incrementing the proportion of infected individuals.
+</p>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/2Os9h-mQouM" frameborder="0" allowfullscreen></iframe>
+<p>
+Increasing the death probability of infected people to \(p_{di} = 0.2\) has the following effect on the population:
+</p>
+
+<figure><img src="img/disease_4.png" ></img> </figure>
+
+<p>
+As can be seen, initially population goes down, but, because of the high mortality rate of the disease, the latter rapidly becomes extinct before being able to infect new individuals.
+</p>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/_nHzvk_f0Co" frameborder="0" allowfullscreen> </iframe>
+<p>
+In general, experimentation with the application shown that given the initial parameters of the disease and the population, it is not easy to predict whether the evolution of the system will be cohexistence of infected and healthy people, extinction of the disease, or extinction of the whole population.
+</p>
+
+<h4>Forest fire model</h4>
+<p>
+Another model well represented by use of probabilistic cellular automata is forest fire. States in this case are \(\Sigma =  \{empty, green tree, burning tree\}\); a green tree that has at least one burning tree as a neighbour becomes a burning tree, and a burning tree becomes an empty cell. Green trees grow in empty sites with probability \(p\), and trees burn with probability \(f\) (lightning probability). Forest fire model can therefore be simulated inside the applet.
+</p>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/8L_YjQ_01vU" frameborder="0" allowfullscreen></iframe>
+<p>
+Forest fire model is of particular interest because it exhibits self-organised criticality (in steady state, characteristic quantities of the system follow a power law); a mathematical model of forest fire is very complex, whereas a cellular automaton based simulation can be created with very simple rules.
+</p>
+
+<h4>Other rules</h4>
+<p>
+In math.wisc.edu a <a href="http://psoup.math.wisc.edu/mcell/ca_rules.html">Cellular automata rules lexicon</a> can be found, containing some of the most famous rules, divided by rule family. All of the rules in Life and Generations can be reproduced using the applet. Some of the most interesting ones will be shown below, to both give an idea of the diversity of models that can be conceived with use of cellular automata and of how the proposed applet is a powerful tool to easily explore many of the possibilities.
+</p>
+
+<p>
+<h5>Stains</h5>
+Set of rules S:235678, B:3678 produces emergence of stain-like structures. An interesting result is obtained if those are combined with another group of individuals which follow another rule set, like Life, also introducing transition rules.
+</p>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/iq0uqJIcpxw" frameborder="0" allowfullscreen></iframe>
+
+<h5>Replicator</h5>
+<p>Set of rules S:1357, B:1357 produces a cellular automaton in which every pattern is a replicator:
+</p>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/DxOhlYWcoaY" frameborder="0" allowfullscreen></iframe>
+<h5>Brian's brain</h5>
+<p>Brian's brain is a cellular automaton that belongs to the "generations" category, i.e. the <em>ages</em> parameter in the applet is different than 1. This drastically changes the rules, as can be seen in the videos below.
+<br />
+It is given by the rule set B:2, ages:3. It results in very visually appealing patterns:
+</p>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/1gKPsk9YHl0" frameborder="0" allowfullscreen></iframe>
+<p>
+A variation on this, which gives raise to even more patterns, is Brain6, which is given by S:6, B:246, ages:3.
+</p>
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/co8wT9fWcuk" frameborder="0" allowfullscreen></iframe>
+
+<h5>
+Islands</h5>
+The rule set S:45678, B:25678, ages:4 originates an automaton that, initialised randomly, rapidly converges in islands that intercommunicate through gliders:
+<iframe width="560" height="315" src="https://www.youtube.com/embed/AxNhYJ7iDMw" frameborder="0" allowfullscreen></iframe>
+
+<h4>Following</h4>
+The rules BornB:3, surviveB:23, bornC:234, surviceC:23, ages:1, CtoB:23456789, give origin to a cellular automaton in which it looks like cells in state C follow cells in state B. Again, this is a clear example of how a behaviour we could call <em>intelligent</em>, such as following, emerges from simple rules.
+<iframe width="560" height="315" src="https://www.youtube.com/embed/bylODdE8VEQ" frameborder="0" allowfullscreen></iframe>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/d-Ik826pyug" frameborder="0" allowfullscreen></iframe>
+<h4>Faders</h4>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/aISZaqqfQ34" frameborder="0" allowfullscreen></iframe>
+
+<h4>Fireworks</h4>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/kLhmOwexK7Q" frameborder="0" allowfullscreen></iframe>
+<h4>Flames</h4>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/GOkO4K3ReYo" frameborder="0" allowfullscreen></iframe>
+
+<h4>Nova</h4>
+The following video demonstrates how changes in the ages parameter produce variations on the behaviour of the automaton:
+<iframe width="560" height="315" src="https://www.youtube.com/embed/nxyfinIxg8M" frameborder="0" allowfullscreen></iframe>
+
+<h4>Spirals</h4>
+The following video shows how highly ordered, periodic spirals are obtained using a specific rule set:
+<iframe width="560" height="315" src="https://www.youtube.com/embed/1G50b30fJYk" frameborder="0" allowfullscreen></iframe>
+
+<h4>Stains</h4>
+The following video shows a set of rules that produces stain-like shapes, and experimentations made introducing variations on the rules:
+<iframe width="560" height="315" src="https://www.youtube.com/embed/iq0uqJIcpxw" frameborder="0" allowfullscreen></iframe>
+
+<h4>Further experiments</h4>
+The following video shows further experimentation done with use of the applet; it shows how different, interesting models can be explored changing transition rules in cellular automata.
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/XwiLkfnkYLg" frameborder="0" allowfullscreen></iframe>
+
+<h2>Conclusions</h2>
+<p>A large class of cellular automata can be modelled with the proposed applet; by changing its parameters, an incredible diversity of behaviours can emerge. In this page a few interesting set of rules have been pointed out, which are only a small subset of all the possible models obtainable changing the rules. The aim of the applet is allowing the user to find even more interesting ones trying different rule sets and observing the behaviours that emerge from them. </p>
+<p>Many more, even more complex, cellular automata could be conceived. For example, neighbourhoods of different shapes or non-square cells could be considered, more than two states could be allowed, the grid could be 3-dimensional, more general rules could be used. A lot can, however, be learnt about emergence and self-organization through the proposed application, of which these variations could be considered further extensions.
+The models shown above are just a small part of all the possible ones that could be conceived, and they have been selected to demonstrate the modelling power and flexibility of cellular automata.
+</p>
+
+<h2>References and links</h2>
+<ol>
+      <li id="mathematical_model"><a href="https://en.wikibooks.org/wiki/Cellular_Automata/Mathematical_Model">Wikibooks: mathematical model of cellular automata</a></li>
+      <li><a href="http://www.cs.bris.ac.uk/staff/marshall/lectures/ca.pdf"> Marshall, J. A. R. (2008). Computational Methods for complex Systems: cellular automata.</a></li>
+      <li>Langton, C. (1986). Studying Artificial life with Cellular Automata. Physica 22D, 120-149.</li>
+      <li>Droz, M., Chopard, B. (1998). Cellular Automata Modeling of Physical Systems.</li>
+      <li>Ilachinski, A. (2001). Cellular Automata: A Discrete Universe. Singapore: World Scientific. ISBN: 9-810-24623-4 </li>
+         <li>Camazine, S., Franks, N.R., Sneyd, J., Bonabeau, E., Deneubourg, J. L., Theraula, G. (2001). Self-Organization in Biological Systems. Princeton University Press, Princeton, NJ, USA.</li>
+         <li><a href="http://www.heterogenistics.org/articles/Maruyama-SecondCybernetics.pdf">Maruyama, M. (1963). The Second Cybernetics: Deviation-Amplifying Mutual Causal Processes. American Scientist 5:2, pp. 164--179. </a></li>
+         <li><a href="http://www.sciencedirect.com/science/article/pii/S0378437103009221">Kerner, B. S. (2004). Three-phase traffic theory and highway capacity. Physica A: Statistical Mechanics and its Applications, Volume 333, 15 February 2004, Pages 379–440</a></li>
+         <li><a href="http://cftc.cii.fc.ul.pt/ensino/SistCom/traffic.pdf">Kerner, B. S.,  Klenov, S. L.,  Wolf, D. E. (2002). Cellular automata approach to three-phase traffic theory. Journal of physics A: Mathematical and general.</a></li>
+         <li>Zuse, K. (1969). Rechnender Raum "Calculating Space". Schriften zur Datenverarbeitung, Vol.1 </li>
+         <li><a href="http://www.igblan.free-online.co.uk/igblan/ca/">Life Universal Computer</a></li>
+         <li><a href="http://www.wolframscience.com/nksonline/toc.html">Wolfram, S. (2002). A New Kind of Science. Wolfram Media Inc., Champaign, Ilinois, US, United States.</a></li>
+         <li><a href="http://mathworld.wolfram.com/ElementaryCellularAutomaton.html">Elementary cellular automaton</a></li>
+         <li><a href ="http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.227.1164&rep=rep1&type=pdf">Langton, C.S. (1990). Computation at the edge of chaos: phase transitions and emergent computation. Physica D42 12-37. </a></li>
+         <li>Ilachinski, A. (2001). Cellular Automata: A discrete Universe. </li>
+         <li>Bagnoli, F., Rechtman, R., Ruffo, S. (1991). Some facts of life. Physica A 171.</li>
+         <li>Monetti, R., Albano, E. (1997). Stochastic game of life in one dimension. Phisica A: Statistical mechanics and its Applications. 785-791</li>
+         <li><a href="http://psoup.math.wisc.edu/mcell/ca_rules.html">Cellular automata rules lexicon</a></li>
+   </ol>
+
+
+</body>
+</html>
